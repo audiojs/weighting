@@ -1,0 +1,32 @@
+{
+  "name": "@audio/weighting-k",
+  "version": "1.0.0",
+  "description": "ITU-R BS.1770-4 K-weighting: high-shelf + RLB highpass",
+  "type": "module",
+  "sideEffects": false,
+  "main": "k-weighting.js",
+  "exports": {
+    ".": "./k-weighting.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "k-weighting.js"
+  ],
+  "dependencies": {
+    "digital-filter": "^2.0.0"
+  },
+  "keywords": [
+    "audio",
+    "dsp",
+    "weighting",
+    "k"
+  ],
+  "license": "MIT",
+  "author": "Dmitry Iv. <dfcreative@gmail.com>",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

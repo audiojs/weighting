@@ -1,0 +1,32 @@
+{
+  "name": "@audio/weighting-itu468",
+  "version": "1.0.0",
+  "description": "ITU-R BS.468-4 noise weighting, exact matched-z realization: peaked at",
+  "type": "module",
+  "sideEffects": false,
+  "main": "itu468.js",
+  "exports": {
+    ".": "./itu468.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "itu468.js"
+  ],
+  "dependencies": {
+    "digital-filter": "^2.0.0"
+  },
+  "keywords": [
+    "audio",
+    "dsp",
+    "weighting",
+    "itu468"
+  ],
+  "license": "MIT",
+  "author": "Dmitry Iv. <dfcreative@gmail.com>",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
