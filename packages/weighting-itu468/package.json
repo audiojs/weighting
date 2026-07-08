@@ -1,6 +1,6 @@
 {
   "name": "@audio/weighting-itu468",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "ITU-R BS.468-4 noise weighting, exact matched-z realization: peaked at",
   "type": "module",
   "sideEffects": false,

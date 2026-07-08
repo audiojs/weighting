@@ -354,7 +354,7 @@ test('bWeighting — 3 SOS sections, 0dB at 1kHz, produces output', () => {
 // .response(f, fs) — self-consistency: must equal the atom's own coefs()' magnitude,
 // not an independent reimplementation (that's the whole point: it describes what the
 // shipped filter actually does, not a parallel analog approximation that could drift).
-test('response() is exactly the atom\'s own filter magnitude, for A/B/C, at several fs', () => {
+test('response() is exactly the atom\'s own filter magnitude, for A/B/C/itu468, at several fs', () => {
 	for (let fs of [44100, 48000, 96000]) {
 		for (let name of ['aWeighting', 'bWeighting', 'cWeighting']) {
 			let sos = audio[name].coefs(fs)
@@ -366,6 +366,6 @@ test('response() is exactly the atom\'s own filter magnitude, for A/B/C, at seve
 	}
 })
 
-test('response(1000) is unity for A/B/C (0dB normalization)', () => {
-	for (let name of ['aWeighting', 'bWeighting', 'cWeighting']) almost(audio[name].response(1000), 1, 1e-9, name)
+test('response(1000) is unity for A/B/C/itu468 (0dB normalization)', () => {
+	for (let name of ['aWeighting', 'bWeighting', 'cWeighting', 'itu468']) almost(audio[name].response(1000), 1, 1e-9, name)
 })
