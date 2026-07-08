@@ -325,3 +325,47 @@ test('aWeighting/cWeighting — dense freqz sweep matches magDB reference (cross
 		}
 	}
 })
+
+// B-weighting: no IEC 61672 table (superseded by A/C in the modern standard) — the
+// only citable reference for the retained ANSI S1.4 curve is a-weighting's own b(f)
+// closed form (independently published npm package), differential-tested directly.
+import { b as bRef } from 'a-weighting'
+
+test('bWeighting — differential vs a-weighting reference (matched-Z, same bound as A/C near Nyquist)', () => {
+	let sos = audio.bWeighting.coefs(44100)
+	for (let f of [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000]) {
+		let ref = 20 * Math.log10(bRef(f) / bRef(1000))
+		let got = magDB(sos, f, 44100)
+		let tol = f >= 8000 ? 1.5 : 0.5   // same matched-Z tolerance A/C already use at these bands
+		ok(Math.abs(got - ref) < tol, `B-weighting ${f}Hz: ref ${ref.toFixed(2)}, got ${got.toFixed(2)} dB`)
+	}
+})
+
+test('bWeighting — 3 SOS sections, 0dB at 1kHz, produces output', () => {
+	let sos = audio.bWeighting.coefs(44100)
+	is(sos.length, 3, 'double pole f1 + single pole f2 + double pole f4 = 3 sections')
+	almost(magDB(sos, 1000, 44100), 0, 1e-6)
+	let data = impulse(4096)
+	let p = { fs: 44100 }
+	audio.bWeighting(data, p)
+	ok(data.some(x => Math.abs(x) > EPSILON), 'bWeighting produces output')
+})
+
+// .response(f, fs) — self-consistency: must equal the atom's own coefs()' magnitude,
+// not an independent reimplementation (that's the whole point: it describes what the
+// shipped filter actually does, not a parallel analog approximation that could drift).
+test('response() is exactly the atom\'s own filter magnitude, for A/B/C, at several fs', () => {
+	for (let fs of [44100, 48000, 96000]) {
+		for (let name of ['aWeighting', 'bWeighting', 'cWeighting']) {
+			let sos = audio[name].coefs(fs)
+			for (let f of [100, 1000, 8000]) {
+				almost(audio[name].response(f, fs), Math.pow(10, magDB(sos, f, fs) / 20), 1e-9,
+					`${name}.response(${f}, ${fs}) matches its own coefs()`)
+			}
+		}
+	}
+})
+
+test('response(1000) is unity for A/B/C (0dB normalization)', () => {
+	for (let name of ['aWeighting', 'bWeighting', 'cWeighting']) almost(audio[name].response(1000), 1, 1e-9, name)
+})

@@ -1,16 +1,16 @@
 {
-  "name": "@audio/weighting-c",
-  "version": "1.1.0",
-  "description": "IEC 61672-1:2013 C-weighting: H(s) = K·s² / ((s+w1)²(s+w4)²)",
+  "name": "@audio/weighting-b",
+  "version": "1.0.0",
+  "description": "IEC 61672-1:2013 / ANSI S1.42 B-weighting filter — moderate-loudness frequency response",
   "type": "module",
   "sideEffects": false,
-  "main": "c-weighting.js",
+  "main": "b-weighting.js",
   "exports": {
-    ".": "./c-weighting.js",
+    ".": "./b-weighting.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "c-weighting.js"
+    "b-weighting.js"
   ],
   "dependencies": {
     "digital-filter": "^2.0.0"
@@ -19,7 +19,7 @@
     "audio",
     "dsp",
     "weighting",
-    "c"
+    "b"
   ],
   "license": "MIT",
   "author": "Dmitry Iv. <dfcreative@gmail.com>",
