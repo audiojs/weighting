@@ -1,0 +1,33 @@
+{
+  "name": "@audio/weighting-d",
+  "version": "1.0.0",
+  "description": "IEC 537 D-weighting filter — aircraft-noise frequency response (resonant hump near 4 kHz)",
+  "type": "module",
+  "sideEffects": false,
+  "main": "d-weighting.js",
+  "exports": {
+    ".": "./d-weighting.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "d-weighting.js"
+  ],
+  "dependencies": {
+    "digital-filter": "^2.0.0",
+    "@audio/biquad": "^1.1.0"
+  },
+  "keywords": [
+    "audio",
+    "dsp",
+    "weighting",
+    "d"
+  ],
+  "license": "MIT",
+  "author": "Dmitry Iv. <dfcreative@gmail.com>",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

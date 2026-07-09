@@ -351,12 +351,42 @@ test('bWeighting — 3 SOS sections, 0dB at 1kHz, produces output', () => {
 	ok(data.some(x => Math.abs(x) > EPSILON), 'bWeighting produces output')
 })
 
+// D-weighting: withdrawn from the modern standard (IEC 537 aircraft-noise curve) — no IEC
+// 61672 table to check against, so differential-test the realized filter against a-weighting's
+// own d(f) closed form, relative to 1 kHz (same pattern as B). Matched-z rolloff widens the
+// gap near Nyquist exactly as it does for A/C, hence the looser bound at 8 kHz.
+import { d as dRef } from 'a-weighting'
+
+test('dWeighting — differential vs a-weighting reference (relative to 1kHz)', () => {
+	let sos = audio.dWeighting.coefs(44100)
+	let ref1k = 20 * Math.log10(dRef(1000)), got1k = magDB(sos, 1000, 44100)
+	for (let f of [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 6300, 8000]) {
+		let ref = 20 * Math.log10(dRef(f)) - ref1k
+		let got = magDB(sos, f, 44100) - got1k
+		let tol = f >= 8000 ? 1.5 : 0.5
+		ok(Math.abs(got - ref) < tol, `D-weighting ${f}Hz: ref ${ref.toFixed(2)}, got ${got.toFixed(2)} dB`)
+	}
+})
+
+test('dWeighting — 2 SOS sections, 0dB at 1kHz, resonant hump ~+11.5dB near 3.15kHz', () => {
+	let sos = audio.dWeighting.coefs(44100)
+	is(sos.length, 2, 'complex zero pair + complex pole pair fold with the real poles / DC zero into 2 sections')
+	almost(magDB(sos, 1000, 44100), 0, 1e-6)
+	// standard D-weighting is +11.5 dB at the 3.15 kHz third-octave band (rel 1 kHz)
+	let hump = magDB(sos, 3150, 44100)
+	ok(Math.abs(hump - 11.5) < 0.3, `D-weighting hump ~+11.5dB at 3.15kHz, got ${hump.toFixed(2)}dB`)
+	ok(hump > magDB(sos, 1000, 44100) && hump > magDB(sos, 8000, 44100), 'hump exceeds the 1kHz and 8kHz shoulders')
+	let data = impulse(4096)
+	audio.dWeighting(data, { fs: 44100 })
+	ok(data.some(x => Math.abs(x) > EPSILON), 'dWeighting produces output')
+})
+
 // .response(f, fs) — self-consistency: must equal the atom's own coefs()' magnitude,
 // not an independent reimplementation (that's the whole point: it describes what the
 // shipped filter actually does, not a parallel analog approximation that could drift).
-test('response() is exactly the atom\'s own filter magnitude, for A/B/C/itu468, at several fs', () => {
+test('response() is exactly the atom\'s own filter magnitude, for A/B/C/D, at several fs', () => {
 	for (let fs of [44100, 48000, 96000]) {
-		for (let name of ['aWeighting', 'bWeighting', 'cWeighting']) {
+		for (let name of ['aWeighting', 'bWeighting', 'cWeighting', 'dWeighting']) {
 			let sos = audio[name].coefs(fs)
 			for (let f of [100, 1000, 8000]) {
 				almost(audio[name].response(f, fs), Math.pow(10, magDB(sos, f, fs) / 20), 1e-9,
@@ -366,6 +396,6 @@ test('response() is exactly the atom\'s own filter magnitude, for A/B/C/itu468, 
 	}
 })
 
-test('response(1000) is unity for A/B/C/itu468 (0dB normalization)', () => {
-	for (let name of ['aWeighting', 'bWeighting', 'cWeighting', 'itu468']) almost(audio[name].response(1000), 1, 1e-9, name)
+test('response(1000) is unity for A/B/C/D/itu468 (0dB normalization)', () => {
+	for (let name of ['aWeighting', 'bWeighting', 'cWeighting', 'dWeighting', 'itu468']) almost(audio[name].response(1000), 1, 1e-9, name)
 })

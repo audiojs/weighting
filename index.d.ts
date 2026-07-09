@@ -14,8 +14,12 @@ type WeightingFilter = { (data: Buf, params?: WeightingParams): Buf; coefs(fs?: 
 
 /** IEC 61672 A-weighting, in-place. `.coefs(fs)` returns SOS for analysis. */
 export const aWeighting: WeightingFilter
+/** IEC 61672 / ANSI S1.42 B-weighting, in-place. `.coefs(fs)` returns SOS for analysis. */
+export const bWeighting: WeightingFilter
 /** IEC 61672 C-weighting, in-place. `.coefs(fs)` returns SOS for analysis. */
 export const cWeighting: WeightingFilter
+/** IEC 537 D-weighting (aircraft noise, resonant hump near 3.3 kHz), in-place. `.coefs(fs)` returns SOS for analysis. */
+export const dWeighting: WeightingFilter
 /** ITU-R BS.1770 K-weighting, in-place. `.coefs(fs)` returns SOS for analysis. */
 export const kWeighting: WeightingFilter
 /** ITU-R BS.468-4 noise-weighting, in-place. `.coefs(fs)` returns SOS for analysis (3 sections, exact matched-z of the analog prototype). */
