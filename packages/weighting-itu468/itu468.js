@@ -1,4 +1,4 @@
-import dfFilter from 'digital-filter/core/filter.js'
+import { filter } from '@audio/biquad'
 import matchedZ from 'digital-filter/core/matched-z.js'
 
 /** Magnitude |H(f)| of this atom's own SOS cascade — self-consistent with the filter above. */
@@ -22,7 +22,7 @@ export default function itu468(data, params = {}) {
 		params._sos = itu468.coefs(fs)
 		params.coefs = params._sos
 	}
-	return dfFilter(data, params)
+	return filter(data, params)
 }
 
 itu468.coefs = function coefs(fs = 48000) {

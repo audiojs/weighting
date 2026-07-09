@@ -1,4 +1,4 @@
-import dfFilter from 'digital-filter/core/filter.js'
+import { filter } from '@audio/biquad'
 import matchedZ from 'digital-filter/core/matched-z.js'
 
 let { PI } = Math
@@ -24,7 +24,7 @@ export default function cWeighting(data, params = {}) {
 		params._sos = cWeighting.coefs(fs)
 		params.coefs = params._sos
 	}
-	return dfFilter(data, params)
+	return filter(data, params)
 }
 
 cWeighting.coefs = function coefs(fs = 44100) {

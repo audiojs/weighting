@@ -1,6 +1,6 @@
 {
   "name": "@audio/weighting-riaa",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "RIAA playback (de-emphasis): H(s) = (1 + s*T2) / ((1 + s*T1) * (1 + s*T3))",
   "type": "module",
   "sideEffects": false,
@@ -13,7 +13,7 @@
     "riaa.js"
   ],
   "dependencies": {
-    "digital-filter": "^2.0.0"
+    "@audio/biquad": "^1.1.0"
   },
   "keywords": [
     "audio",

@@ -1,6 +1,6 @@
 {
   "name": "@audio/weighting-c",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "IEC 61672-1:2013 C-weighting: H(s) = K·s² / ((s+w1)²(s+w4)²)",
   "type": "module",
   "sideEffects": false,
@@ -13,7 +13,8 @@
     "c-weighting.js"
   ],
   "dependencies": {
-    "digital-filter": "^2.0.0"
+    "digital-filter": "^2.0.0",
+    "@audio/biquad": "^1.1.0"
   },
   "keywords": [
     "audio",

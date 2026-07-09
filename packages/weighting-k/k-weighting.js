@@ -1,4 +1,4 @@
-import dfFilter from 'digital-filter/core/filter.js'
+import { filter } from '@audio/biquad'
 
 export default function kWeighting(data, params = {}) {
 	let fs = params.fs || 48000
@@ -7,7 +7,7 @@ export default function kWeighting(data, params = {}) {
 		params._sos = kWeighting.coefs(fs)
 		params.coefs = params._sos
 	}
-	return dfFilter(data, params)
+	return filter(data, params)
 }
 
 kWeighting.coefs = function coefs(fs = 48000) {

@@ -1,6 +1,6 @@
 {
   "name": "@audio/weighting-k",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "ITU-R BS.1770-4 K-weighting: high-shelf + RLB highpass",
   "type": "module",
   "sideEffects": false,
@@ -13,7 +13,7 @@
     "k-weighting.js"
   ],
   "dependencies": {
-    "digital-filter": "^2.0.0"
+    "@audio/biquad": "^1.1.0"
   },
   "keywords": [
     "audio",

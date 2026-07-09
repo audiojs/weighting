@@ -1,4 +1,4 @@
-import dfFilter from 'digital-filter/core/filter.js'
+import { filter } from '@audio/biquad'
 
 let {PI, tan, cos, sin, sqrt} = Math
 
@@ -9,7 +9,7 @@ export default function riaa(data, params = {}) {
 		params._sos = riaa.coefs(fs)
 		params.coefs = params._sos
 	}
-	return dfFilter(data, params)
+	return filter(data, params)
 }
 
 riaa.coefs = function coefs(fs = 44100) {
