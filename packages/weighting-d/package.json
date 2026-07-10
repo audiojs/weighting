@@ -1,6 +1,6 @@
 {
   "name": "@audio/weighting-d",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "IEC 537 D-weighting filter — aircraft-noise frequency response (resonant hump near 4 kHz)",
   "type": "module",
   "sideEffects": false,
