@@ -55,3 +55,8 @@ function evalMag(sections, fNorm) {
 	}
 	return mag
 }
+
+/** |H(f)| at a given frequency, fs — the analytic response of riaa's own filter. */
+riaa.response = function response (f, fs = 44100) {
+	return evalMag(riaa.coefs(fs), f / fs)
+}

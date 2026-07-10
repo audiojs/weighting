@@ -399,3 +399,24 @@ test('response() is exactly the atom\'s own filter magnitude, for A/B/C/D, at se
 test('response(1000) is unity for A/B/C/D/itu468 (0dB normalization)', () => {
 	for (let name of ['aWeighting', 'bWeighting', 'cWeighting', 'dWeighting', 'itu468']) almost(audio[name].response(1000), 1, 1e-9, name)
 })
+
+test('kWeighting/riaa response() matches their own coefs()\' magnitude', () => {
+	for (let fs of [44100, 48000, 96000]) {
+		let sos = audio.kWeighting.coefs(fs)
+		for (let f of [100, 1000, 8000]) {
+			almost(audio.kWeighting.response(f, fs), Math.pow(10, magDB(sos, f, fs) / 20), 1e-9,
+				`kWeighting.response(${f}, ${fs}) matches its own coefs()`)
+		}
+	}
+	for (let fs of [44100, 48000, 96000]) {
+		let sos = audio.riaa.coefs(fs)
+		for (let f of [100, 1000, 8000]) {
+			almost(audio.riaa.response(f, fs), Math.pow(10, magDB(sos, f, fs) / 20), 1e-9,
+				`riaa.response(${f}, ${fs}) matches its own coefs()`)
+		}
+	}
+})
+
+test('riaa.response(1000) is unity (0dB normalization at 1kHz)', () => {
+	for (let fs of [44100, 48000, 96000]) almost(audio.riaa.response(1000, fs), 1, 1e-9, `riaa@${fs}`)
+})
