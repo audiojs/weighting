@@ -1,6 +1,6 @@
-import { filter } from '@audio/biquad'
+import { filter, cascadeMagnitude } from '@audio/biquad'
 
-let {PI, tan, cos, sin, sqrt} = Math
+let {PI, tan} = Math
 
 export default function riaa(data, params = {}) {
 	let fs = params.fs || 44100
@@ -31,7 +31,7 @@ riaa.coefs = function coefs(fs = 44100) {
 	let s1 = { b0: n0/d0, b1: n1/d0, b2: 0, a1: d1/d0, a2: d2/d0 }
 
 	// Normalize to 0 dB at 1 kHz
-	let g = evalMag([s1], 1000 / fs)
+	let g = cascadeMagnitude([s1], 1000, fs)
 	s1.b0 /= g; s1.b1 /= g
 
 	return [s1]
@@ -41,22 +41,7 @@ function prewarp(f, fs) {
 	return 2 * fs * tan(PI * f / fs)
 }
 
-function evalMag(sections, fNorm) {
-	let w = 2 * PI * fNorm
-	let cosw = cos(w), sinw = sin(w)
-	let cos2w = cos(2 * w), sin2w = sin(2 * w)
-	let mag = 1
-	for (let c of sections) {
-		let br = c.b0 + c.b1 * cosw + c.b2 * cos2w
-		let bi = -c.b1 * sinw - c.b2 * sin2w
-		let ar = 1 + c.a1 * cosw + c.a2 * cos2w
-		let ai = -c.a1 * sinw - c.a2 * sin2w
-		mag *= sqrt((br * br + bi * bi) / (ar * ar + ai * ai))
-	}
-	return mag
-}
-
 /** |H(f)| at a given frequency, fs — the analytic response of riaa's own filter. */
 riaa.response = function response (f, fs = 44100) {
-	return evalMag(riaa.coefs(fs), f / fs)
+	return cascadeMagnitude(riaa.coefs(fs), f, fs)
 }
