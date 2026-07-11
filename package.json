@@ -1,6 +1,6 @@
 {
   "name": "@audio/weighting",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "sideEffects": false,
   "description": "Frequency weighting filters — umbrella for @audio/weighting-* atoms (A, B, C, D, K/BS.1770, ITU-R 468, RIAA)",
@@ -59,5 +59,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/audiojs/weighting.git"
-  }
+  },
+  "funding": "https://github.com/sponsors/audiojs"
 }
