@@ -5,12 +5,20 @@
   "type": "module",
   "sideEffects": false,
   "main": "c-weighting.js",
+  "types": "./c-weighting.d.ts",
   "exports": {
     ".": "./c-weighting.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./audio": {
+      "types": "./audio.d.ts",
+      "default": "./audio.js"
+    }
   },
   "files": [
-    "c-weighting.js"
+    "c-weighting.js",
+    "c-weighting.d.ts",
+    "audio.js",
+    "audio.d.ts"
   ],
   "dependencies": {
     "digital-filter": "^2.0.0",
@@ -34,5 +42,7 @@
     "type": "git",
     "url": "git+https://github.com/audiojs/weighting.git",
     "directory": "packages/weighting-c"
-  }
+  },
+  "funding": "https://github.com/sponsors/audiojs",
+  "audio": "./audio.js"
 }

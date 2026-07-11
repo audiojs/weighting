@@ -5,12 +5,20 @@
   "type": "module",
   "sideEffects": false,
   "main": "riaa.js",
+  "types": "./riaa.d.ts",
   "exports": {
     ".": "./riaa.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./audio": {
+      "types": "./audio.d.ts",
+      "default": "./audio.js"
+    }
   },
   "files": [
-    "riaa.js"
+    "riaa.js",
+    "riaa.d.ts",
+    "audio.js",
+    "audio.d.ts"
   ],
   "dependencies": {
     "@audio/biquad": "^1.1.0"
@@ -33,5 +41,7 @@
     "type": "git",
     "url": "git+https://github.com/audiojs/weighting.git",
     "directory": "packages/weighting-riaa"
-  }
+  },
+  "funding": "https://github.com/sponsors/audiojs",
+  "audio": "./audio.js"
 }
