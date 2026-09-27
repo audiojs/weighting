@@ -33,7 +33,7 @@ kWeighting.response(2000, 48000)          // |H(2000)| — shelf boost
 |---|---|---|
 | `.coefs(fs)` | `SOS` | 2-section cascade (high shelf + RLB highpass) at rate `fs`, for analysis/plotting |
 | `.response(f, fs)` | `number` | `\|H(f)\|` — exact magnitude of this atom's own `.coefs(fs)` cascade, not an independent approximation |
-| `.ms(channels, params)` | `Float64Array` | mean square of each channel's K-weighted block (input untouched; state per channel on `params`, same `params` every block) — the BS.1770 measurement loop, fused, float64 |
+| `.ms(channels, params)` | `Float64Array` | mean square of each channel's K-weighted block (input untouched; state per channel on `params`, same `params` every block): the BS.1770 measurement loop, fused, float64 |
 
 **Use when:** implementing integrated/momentary/short-term loudness (LUFS) per ITU-R BS.1770 / EBU R128 — this is the mandated pre-filter, applied before mean-square gating and channel summing.
 

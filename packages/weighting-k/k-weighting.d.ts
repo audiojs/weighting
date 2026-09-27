@@ -38,7 +38,7 @@ interface KWeighting {
   response(f: number, fs?: number): number
   /**
    * Mean square of each channel's K-weighted block into `out` (default: a new Float64Array), the BS.1770
-   * measurement's inner loop. Input untouched; pass the same `params` every call — per-channel filter
+   * measurement's inner loop. Input untouched; pass the same `params` every call: per-channel filter
    * state persists on `params.states`. Computed at float64 throughout.
    */
   ms(channels: Buf[], params?: KWeightingParams & { states?: Float64Array[] }, out?: Float64Array): Float64Array

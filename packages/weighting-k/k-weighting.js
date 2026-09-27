@@ -15,7 +15,7 @@ function design(params) {
 }
 
 /**
- * Mean square of each channel's K-weighted block, into `out` — the BS.1770 loudness measurement's inner
+ * Mean square of each channel's K-weighted block, into `out`: the BS.1770 loudness measurement's inner
  * loop. Input untouched; filter state per channel carried on `params.states` across blocks (same params
  * every call). Both sections and the squares run in one pass per sample at float64, channels two at a time:
  * four independent recursions interleaved keep the FPU busy where one waits on its own feedback.
