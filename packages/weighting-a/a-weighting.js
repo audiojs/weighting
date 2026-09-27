@@ -26,7 +26,9 @@ aWeighting.coefs = function coefs(fs = 44100) {
 	)
 }
 
+let respFs = NaN, respSos = null  // the design, memoized per rate: a response curve asks per frequency
 /** |H(f)| at a given frequency, fs — the analytic response of aWeighting's own filter. */
 aWeighting.response = function response (f, fs = 44100) {
-	return cascadeMagnitude(aWeighting.coefs(fs), f, fs)
+	if (fs !== respFs) { respSos = aWeighting.coefs(fs); respFs = fs }
+	return cascadeMagnitude(respSos, f, fs)
 }

@@ -420,3 +420,24 @@ test('kWeighting/riaa response() matches their own coefs()\' magnitude', () => {
 test('riaa.response(1000) is unity (0dB normalization at 1kHz)', () => {
 	for (let fs of [44100, 48000, 96000]) almost(audio.riaa.response(1000, fs), 1, 1e-9, `riaa@${fs}`)
 })
+
+test('response() memoizes the design per rate: alternating rates stay exact', async () => {
+	let { cascadeMagnitude } = await import('@audio/biquad')
+	for (let name of ['aWeighting', 'bWeighting', 'cWeighting', 'dWeighting', 'kWeighting', 'itu468', 'riaa'])
+		for (let fs of [44100, 48000, 44100, 96000, 48000]) for (let f of [50, 1000, 12000])
+			is(audio[name].response(f, fs), cascadeMagnitude(audio[name].coefs(fs), f, fs), `${name} ${f} Hz @ ${fs}`)
+})
+
+test('kWeighting.ms ≡ mean square of kWeighting on float64 copies, state carried, any channel count', () => {
+	let fs = 44100, N = 5000
+	for (let nch of [1, 2, 3, 5]) {
+		let chs = Array.from({ length: nch }, (_, c) => Float32Array.from({ length: N }, (_, i) => Math.sin(i * (0.01 + c * 0.003)) * 0.7 + Math.sin(i * 1.7 + c) * 0.2))
+		let refP = chs.map(() => ({ fs })), p = { fs }
+		for (let o = 0; o < N; o += 1024) {
+			let blk = chs.map(x => x.subarray(o, o + 1024)), got = audio.kWeighting.ms(blk, p)
+			let want = blk.map((x, c) => { let y = Float64Array.from(x); audio.kWeighting(y, refP[c]); let s = 0; for (let i = 0; i < y.length; i++) s += y[i] * y[i]; return s / y.length })
+			ok(want.every((v, c) => v === got[c]), `${nch} ch, block @${o}: ${got[0]}`)
+		}
+		ok(chs.every((x, c) => x[7] === Math.fround(Math.sin(7 * (0.01 + c * 0.003)) * 0.7 + Math.sin(7 * 1.7 + c) * 0.2)), 'input untouched')
+	}
+})

@@ -34,7 +34,9 @@ dWeighting.coefs = function coefs(fs = 44100) {
 	)
 }
 
+let respFs = NaN, respSos = null  // the design, memoized per rate: a response curve asks per frequency
 /** |H(f)| at a given frequency, fs — the analytic response of dWeighting's own filter. */
 dWeighting.response = function response (f, fs = 44100) {
-	return cascadeMagnitude(dWeighting.coefs(fs), f, fs)
+	if (fs !== respFs) { respSos = dWeighting.coefs(fs); respFs = fs }
+	return cascadeMagnitude(respSos, f, fs)
 }

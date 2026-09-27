@@ -33,7 +33,9 @@ itu468.coefs = function coefs(fs = 48000) {
 	)
 }
 
+let respFs = NaN, respSos = null  // the design, memoized per rate: a response curve asks per frequency
 /** |H(f)| at a given frequency, fs — the analytic response of itu468's own filter. */
 itu468.response = function response (f, fs = 48000) {
-	return cascadeMagnitude(itu468.coefs(fs), f, fs)
+	if (fs !== respFs) { respSos = itu468.coefs(fs); respFs = fs }
+	return cascadeMagnitude(respSos, f, fs)
 }
