@@ -1,6 +1,6 @@
 {
   "name": "@audio/weighting",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "type": "module",
   "sideEffects": false,
   "description": "Frequency weighting filters — umbrella for @audio/weighting-* atoms (A, B, C, D, K/BS.1770, ITU-R 468, RIAA)",
@@ -11,11 +11,16 @@
       "types": "./index.d.ts",
       "default": "./index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*": {
+      "types": "./members/*.d.ts",
+      "default": "./members/*.js"
+    }
   },
   "files": [
     "index.js",
-    "index.d.ts"
+    "index.d.ts",
+    "members/"
   ],
   "workspaces": [
     "packages/*"
@@ -23,16 +28,18 @@
   "scripts": {
     "test": "node test.js",
     "test:all": "npm test --workspaces --if-present && npm test",
-    "publish:all": "npm publish --workspaces && npm publish"
+    "publish:all": "npm publish --workspaces && npm publish",
+    "members": "node scripts/members.js",
+    "prepublishOnly": "node scripts/members.js --check"
   },
   "dependencies": {
-    "@audio/weighting-a": "^1.0.0",
-    "@audio/weighting-c": "^1.0.0",
-    "@audio/weighting-k": "^1.0.0",
-    "@audio/weighting-itu468": "^1.0.0",
-    "@audio/weighting-riaa": "^1.0.0",
-    "@audio/weighting-b": "^1.0.0",
-    "@audio/weighting-d": "^1.0.0"
+    "@audio/weighting-a": "^1.2.3",
+    "@audio/weighting-c": "^1.2.3",
+    "@audio/weighting-k": "^1.2.1",
+    "@audio/weighting-itu468": "^1.2.3",
+    "@audio/weighting-riaa": "^1.1.3",
+    "@audio/weighting-b": "^1.1.3",
+    "@audio/weighting-d": "^1.0.3"
   },
   "devDependencies": {
     "tst": "^9.4.0",
