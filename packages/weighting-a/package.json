@@ -1,6 +1,6 @@
 {
   "name": "@audio/weighting-a",
-  "version": "1.2.3",
+  "version": "1.3.0",
   "description": "IEC 61672-1:2013 analog prototype frequencies",
   "type": "module",
   "sideEffects": false,
