@@ -1,7 +1,15 @@
 import test, { almost, ok, is } from 'tst'
 import * as audio from './index.js'
 import { freqz, mag2db } from 'digital-filter'
-import { magDB, EPSILON, impulse } from './test/util.js'
+import { magDB, EPSILON, impulse, rings, collections } from './test/util.js'
+import { fileURLToPath } from 'node:url'
+import { aWeighting as aAtom } from '@audio/weighting-a/audio'
+import { bWeighting as bAtom } from '@audio/weighting-b/audio'
+import { cWeighting as cAtom } from '@audio/weighting-c/audio'
+import { dWeighting as dAtom } from '@audio/weighting-d/audio'
+import { itu468 as ituAtom } from '@audio/weighting-itu468/audio'
+import { kWeighting as kAtom } from '@audio/weighting-k/audio'
+import { riaa as riaaAtom } from '@audio/weighting-riaa/audio'
 
 // IEC 61672-1:2013 Table 2 — A-weighting nominal values (dB)
 const IEC_A = {
@@ -124,6 +132,23 @@ test('kWeighting 48kHz — exact BS.1770-4 Annex 1 coefficients (all 5 coefs, bo
 	almost(sos[1].b2, 1.0, EPSILON)
 	almost(sos[1].a1, -1.99004745483398, EPSILON)
 	almost(sos[1].a2, 0.99007225036621, EPSILON)
+})
+
+// BS.1770-4 Annex 1: coefficients at other rates "should be chosen to provide the same frequency response that the
+// specified filter provides at 48 kHz". Redesigned per rate from the analog prototype (as libebur128 and pyloudnorm's
+// DeMan filter do), the response stays within 0.01 dB of the 48 kHz table's at 44.1 kHz and 0.05 dB from 32 to 192 kHz.
+// Lower rates warp the shelf near 2.5 kHz: 0.15 dB at 16 kHz, 0.5 dB at 8 kHz (speech reads 0.08 and 0.18 LU louder
+// than the same speech at 48 kHz); the bounds below hold that.
+test('kWeighting — the 48 kHz table response at other rates', () => {
+	let table = [
+		{ b0: 1.53512485958697, b1: -2.69169618940638, b2: 1.19839281085285, a1: -1.69065929318241, a2: 0.73248077421585 },
+		{ b0: 1, b1: -2, b2: 1, a1: -1.99004745483398, a2: 0.99007225036621 },
+	]
+	for (let [fs, tol] of [[44100, 0.01], [32000, 0.05], [88200, 0.05], [96000, 0.05], [192000, 0.05], [22050, 0.1], [16000, 0.2], [8000, 0.55]]) {
+		let worst = 0
+		for (let f = 10; f < 0.45 * Math.min(fs, 48000); f *= 1.02) worst = Math.max(worst, Math.abs(magDB(audio.kWeighting.coefs(fs), f, fs) - magDB(table, f, 48000)))
+		ok(worst <= tol, `${fs} Hz: within ${worst.toFixed(4)} dB (≤ ${tol})`)
+	}
 })
 
 test('kWeighting other rate — still returns 2 sections', () => {
@@ -440,4 +465,75 @@ test('kWeighting.ms ≡ mean square of kWeighting on float64 copies, state carri
 		}
 		ok(chs.every((x, c) => x[7] === Math.fround(Math.sin(7 * (0.01 + c * 0.003)) * 0.7 + Math.sin(7 * 1.7 + c) * 0.2)), 'input untouched')
 	}
+})
+
+// The /audio manifests as a host drives them: a stub ctx (CONTRACT.md, Context), process() called in blocks
+const ATOMS = [['aWeighting', aAtom, 'weighting-a'], ['bWeighting', bAtom, 'weighting-b'], ['cWeighting', cAtom, 'weighting-c'], ['dWeighting', dAtom, 'weighting-d'],
+	['itu468', ituAtom, 'weighting-itu468'], ['kWeighting', kAtom, 'weighting-k'], ['riaa', riaaAtom, 'weighting-riaa']]
+function host (m, x, fs, block = () => 128) {
+	let proc = m({ sampleRate: fs, maxBlockSize: 1024, maxChannels: 2, params: {}, buffers: {} })
+	let a = Float32Array.from(x), y = new Float32Array(x.length)
+	for (let pos = 0, i = 0; pos < x.length; i++) {
+		let n = Math.min(block(i), x.length - pos)
+		proc([[a.subarray(pos, pos + n)]], [[y.subarray(pos, pos + n)]], {})
+		pos += n
+	}
+	x.set(y)
+	return x
+}
+
+test('weighting audio.js – a host\'s blocks of any size give the kernel\'s output, bit for bit, at any rate', () => {
+	for (let [name, m] of ATOMS) for (let fs of [8000, 44100, 48000, 96000, 192000]) {
+		let x = Float64Array.from({ length: 5000 }, (_, i) => 0.5 * Math.sin(i * 0.031) + 0.3 * Math.sin(i * 1.7)), k = 0
+		let got = host(m, Float64Array.from(x), fs, () => [1, 7, 64, 128, 1000][k++ % 5])
+		let want = Float32Array.from(x)
+		audio[name](want, { fs })
+		ok(got.every((v, i) => Object.is(v, want[i])), `${name} at ${fs}: the kernel's output`)
+	}
+})
+
+// CONTRACT.md, process: never write NaN or Infinity. These curves have no params: full-scale noise in at every rate a
+// host may run, 2 channels, calls of 128 frames (the families' one test of this over every processor; these were finite
+// before this test was written)
+test('weighting audio.js – every processor writes finite numbers for noise in, 8 to 192 kHz', () => {
+	let seed = 7, noise = Float32Array.from({ length: 8192 }, () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 2147483648 - 1)
+	for (let [name, m] of ATOMS) for (let fs of [8000, 22050, 44100, 48000, 96000, 192000]) {
+		let p = m({ sampleRate: fs, maxBlockSize: 128, maxChannels: 2, params: {}, buffers: {} }), y = [new Float32Array(noise.length), new Float32Array(noise.length)]
+		for (let pos = 0; pos < noise.length; pos += 128) p([[noise.subarray(pos, pos + 128), noise.subarray(pos, pos + 128)]], [y.map(c => c.subarray(pos, pos + 128))], {})
+		ok(y.every(c => c.every(Number.isFinite)), `${name} at ${fs}: finite`)
+	}
+})
+
+// A tail as a host takes it: a number of seconds, or a function of the setting (CONTRACT.md, Latency, tail)
+const declared = (m, sampleRate) => typeof m.tail === 'function' ? m.tail({ sampleRate, params: {}, buffers: {} }) : m.tail ?? 0
+
+// The tail, by @audio/biquad's rule, computed here directly from each curve's own sections: the impulse response run
+// through them, its |h| summed from the end, the tail the frames before the first frame from which that rest is under
+// 1e-3 (0 at 128 frames or under). What each declares (one number for all rates) is never less, and at most 2 % more
+test('weighting audio.js – each tail: never under the rest of Σ|h| summed here from its sections, at most 2 % over, at 8 to 192 kHz', () => {
+	for (let [name, m] of ATOMS) for (let fs of [8000, 11025, 16000, 22050, 32000, 44100, 48000, 88200, 96000, 176400, 192000]) {
+		let h = new Float64Array(1 << 18), rest = 0, k = h.length
+		h[0] = 1
+		audio[name](h, { fs })
+		while (k > 0 && rest + Math.abs(h[k - 1]) <= 1e-3) rest += Math.abs(h[--k])
+		let D = k - 1 <= 128 ? 0 : k - 1, T = declared(m, fs) * fs
+		ok(T >= D && T <= Math.max(128, 1.02 * D), `${name} at ${fs}: declares ${T.toFixed(1)} frames, the rest summed here ${D}`)
+	}
+})
+
+// The tail against what sounds (test/util.js rings: an impulse, the validator's noise burst, a DC step, tones over the
+// spectrum and at the curve's peak, each to 60 dB under the input's level): never short, and at most 1.5 times the
+// longest ring where that is over 128 frames
+test('weighting audio.js – each tail: never short of the rings of an impulse, noise, a DC step and held tones; at most 1.5 times the longest', () => {
+	for (let [name, m] of ATOMS) for (let fs of [8000, 44100, 48000, 96000, 192000]) {
+		let sos = audio[name].coefs(fs), peak = 1000, top = -Infinity
+		for (let f = 10; f < 0.49 * fs; f *= 1.01) { let g = magDB(sos, f, fs); if (g > top) { top = g; peak = f } }
+		let T = declared(m, fs) * fs, r = rings(x => host(m, x, fs), T, { fs, freqs: [peak, ...Array.from({ length: 16 }, (_, i) => 10 * (0.45 * fs / 10) ** (i / 15))] })
+		ok(!r.short && r.over <= 1.5, `${name} at ${fs}: ${T.toFixed(0)} frames; rings impulse ${r.impulse}, dc ${r.dc}, tone ${r.tone} (${r.toneAt.toFixed(0)} Hz), noise ${r.noise}`)
+	}
+})
+
+test('weighting audio.js – process() allocates nothing, warm; nor a second instance made after the first ran', { timeout: 120000 }, async () => {
+	for (let [, m, pkg] of ATOMS) for (let how of ['fixed', 'second'])
+		is(await collections(fileURLToPath(new URL(`./packages/${pkg}/audio.js`, import.meta.url)), m.name, how), 0, `${m.name}, ${how}: no collection in 2^17 blocks of 8 frames`)
 })

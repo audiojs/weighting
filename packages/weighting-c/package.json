@@ -14,6 +14,9 @@
       "default": "./audio.js"
     }
   },
+  "scripts": {
+    "prepublishOnly": "node ../../../compile/tools/tested.js"
+  },
   "files": [
     "c-weighting.js",
     "c-weighting.d.ts",

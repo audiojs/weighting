@@ -18,6 +18,7 @@ export interface RiaaOptions {
 export declare const riaa: {
   (ctx: Ctx): Process
   channels: "any"
+  tail: (at: { sampleRate: number, params: Live, buffers: {} }) => number
   params: {
 
   }

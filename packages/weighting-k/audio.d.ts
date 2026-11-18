@@ -18,6 +18,7 @@ export interface KWeightingOptions {
 export declare const kWeighting: {
   (ctx: Ctx): Process
   channels: "any"
+  tail: (at: { sampleRate: number, params: Live, buffers: {} }) => number
   params: {
 
   }

@@ -18,6 +18,7 @@ export interface Itu468Options {
 export declare const itu468: {
   (ctx: Ctx): Process
   channels: "any"
+  tail: (at: { sampleRate: number, params: Live, buffers: {} }) => number
   params: {
 
   }

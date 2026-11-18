@@ -14,6 +14,9 @@
       "default": "./audio.js"
     }
   },
+  "scripts": {
+    "prepublishOnly": "node ../../../compile/tools/tested.js"
+  },
   "files": [
     "itu468.js",
     "itu468.d.ts",

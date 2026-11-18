@@ -18,6 +18,7 @@ export interface DWeightingOptions {
 export declare const dWeighting: {
   (ctx: Ctx): Process
   channels: "any"
+  tail: (at: { sampleRate: number, params: Live, buffers: {} }) => number
   params: {
 
   }

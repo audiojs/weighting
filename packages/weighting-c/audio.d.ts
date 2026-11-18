@@ -18,6 +18,7 @@ export interface CWeightingOptions {
 export declare const cWeighting: {
   (ctx: Ctx): Process
   channels: "any"
+  tail: (at: { sampleRate: number, params: Live, buffers: {} }) => number
   params: {
 
   }
